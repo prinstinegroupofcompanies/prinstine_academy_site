@@ -28,6 +28,10 @@ const FACULTY = [
   { name: 'Booker T. Harris', qualifications: 'CPA' },
   { name: 'Joy Odell Nagbe', qualifications: 'MSc' },
   { name: 'Precious Joy. Teeweh', qualifications: 'BSc, MA candidate' },
+  { name: 'Mr. Obediah Koon', qualifications: 'MBA' },
+  { name: 'Mr. Edward K. Zebe', qualifications: 'MSc' },
+  { name: 'Ms. Jamesetta L. Sieh', qualifications: 'Bsc, Msc Cand' },
+  { name: 'Mr. Bethel Anthony', qualifications: 'Bsc, Dip Crt-Marketing' },
 ]
 
 export default function FacultyPage() {
