@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import usePageMeta from '../hooks/usePageMeta'
 
 export default function CertificateVerificationPage() {
-  const verificationUrl = 'https://www.prinstinemanagementsystem.org/verify-certificate'
+  const verificationUrl = 'https://www.prinstinemanagementsystem.org'
 
   usePageMeta({
     title: 'Student Portal',
