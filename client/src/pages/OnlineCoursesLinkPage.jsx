@@ -28,7 +28,7 @@ export default function OnlineCoursesLinkPage() {
           See the below Online Courses Link, select the course you are enrolled to join your class.
           <br />Note: Only for Prinstine Academy students that are enrolled in the online courses. If you are not enrolled in the online courses, please contact the academy for more information.
         </p>
-        // TODO: Add the online courses link here
+        {/* TODO: Add the online courses link here */}
         <a href="https://meet.google.com/dtm-oxkq-oeh " target="_blank" rel="noreferrer" className="btn-primary inline-flex items-center gap-2">Entrepreneurship and Business Development link <span aria-hidden="true">{'->'}</span></a>  
         <a href="https://meet.google.com/ehf-qpaf-mzq" target="_blank" rel="noreferrer" className="btn-primary inline-flex items-center gap-2">Project proposal and grant writing link <span aria-hidden="true">{'->'}</span></a>  
         <a href="https://meet.google.com/frn-zaet-obs" target="_blank" rel="noreferrer" className="btn-primary inline-flex items-center gap-2">Financial Management link <span aria-hidden="true">{'->'}</span></a>  
