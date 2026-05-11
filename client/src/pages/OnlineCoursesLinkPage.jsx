@@ -28,8 +28,8 @@ export default function OnlineCoursesLinkPage() {
           See the below Online Courses Link, select the course you are enrolled to join your class.
           <br />Note: Only for Prinstine Academy students that are enrolled in the online courses. If you are not enrolled in the online courses, please contact the academy for more information.
         </p>
-        {/* TODO: Add the online courses link here */}
-        <a href="https://meet.google.com/dtm-oxkq-oeh " target="_blank" rel="noreferrer" className="btn-primary inline-flex items-center gap-2">Entrepreneurship and Business Development link <span aria-hidden="true">{'->'}</span></a>  
+        {/* TODO: Add the online courses link here, use the courses from the courses and in the courses catalog page and should match the course title and link below. And make sure the link is correct and works.*/} 
+        <a href="https://meet.google.com/dtm-oxkq-oeh " target="_blank" rel="noreferrer" className="btn-primary inline-flex items-center gap-2">Entrepreneurship and Business Development link <span aria-hidden="true">{'->'}</span></a> {/* TODO: Add the image here for the Entrepreneurship and Business Development course */} <img src={entrepreneurshipAndBusinessDevelopmentImage} alt="Entrepreneurship and Business Development" className="w-10 h-10" />
         <a href="https://meet.google.com/ehf-qpaf-mzq" target="_blank" rel="noreferrer" className="btn-primary inline-flex items-center gap-2">Project proposal and grant writing link <span aria-hidden="true">{'->'}</span></a>  
         <a href="https://meet.google.com/frn-zaet-obs" target="_blank" rel="noreferrer" className="btn-primary inline-flex items-center gap-2">Financial Management link <span aria-hidden="true">{'->'}</span></a>  
         <a href="https://meet.google.com/txm-mzow-ixw" target="_blank" rel="noreferrer" className="btn-primary inline-flex items-center gap-2">Internal Audit and Control <span aria-hidden="true">{'->'}</span></a>  
