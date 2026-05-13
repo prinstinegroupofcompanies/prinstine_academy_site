@@ -13,12 +13,21 @@ function classifyAsset(fileName) {
   if (n.includes('dinnernight')) return 'Dinner Night Program'
   if (n.includes('graduation')) return 'Graduation Program'
   if (n.includes('award')) return 'Entrepreneurship Prize'
+  if (n.includes('whatsappimage') && n.includes('20260513')) return 'New Outled Cohort 1 (2026)'
   if (n.includes('whatsappimage')) return 'Campus Moments'
   return 'Campus Gallery'
 }
 
 function getMetaForAsset(fileName) {
   const category = classifyAsset(fileName)
+  if (category === 'New Outled Cohort 1 (2026)') {
+    return {
+      category,
+      caption: 'New Outled Cohort 1 — May 2026',
+      location: 'Prinstine Academy',
+      placement: 'Cohort highlights',
+    }
+  }
   if (category === 'Dinner Night Program') {
     return {
       category,

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { getPosts } from '../services/postService'
+import { newOutledCohort12026PdfUrl } from '../data/localBlogPosts'
 import Reveal from '../components/Reveal'
 import { GridSkeleton } from '../components/Skeletons'
 import ErrorState from '../components/ErrorState'
@@ -135,6 +136,52 @@ export default function BlogPage() {
             Event Highlights
           </span>
         </div>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-blue-200/20 bg-white/5 shadow-lg shadow-slate-950/20">
+        <div className="border-b border-white/10 p-5 md:p-6">
+          <p className="text-xs font-semibold uppercase tracking-wide text-amber-300">Public document</p>
+          <h2 className="mt-2 text-xl font-semibold tracking-tight text-white md:text-2xl">
+            New Outled Cohort 1 (2026) — Information sheet
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-blue-100">
+            View the official PDF below, open it in a new tab for fullscreen reading, or download it for offline use.
+            Event photos for this cohort are also on the{' '}
+            <Link to="/gallery" className="font-semibold text-amber-300 underline-offset-2 hover:underline">
+              Gallery
+            </Link>{' '}
+            and in the matching{' '}
+            <Link
+              to="/blog/new-outled-cohort-1-2026"
+              className="font-semibold text-amber-300 underline-offset-2 hover:underline"
+            >
+              blog article
+            </Link>
+            .
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <a
+              href={newOutledCohort12026PdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+            >
+              Open PDF in new tab
+            </a>
+            <a
+              href={newOutledCohort12026PdfUrl}
+              download="Prinstine-Academy-New-Outled-Cohort-1-2026.pdf"
+              className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-amber-300"
+            >
+              Download PDF
+            </a>
+          </div>
+        </div>
+        <iframe
+          title="New Outled Cohort 1 (2026) information sheet (PDF)"
+          src={newOutledCohort12026PdfUrl}
+          className="min-h-[min(65vh,680px)] w-full bg-slate-900/40"
+        />
       </div>
 
       <div className="rounded-2xl border border-blue-200/20 bg-white/5 p-4 md:p-5">

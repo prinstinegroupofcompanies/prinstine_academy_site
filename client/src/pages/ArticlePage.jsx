@@ -201,6 +201,40 @@ export default function ArticlePage() {
             className="aspect-[16/9] w-full rounded-xl bg-slate-900/35 object-contain object-center"
           />
         ) : null}
+        {post.pdfUrl ? (
+          <div className="space-y-4 rounded-xl border border-white/15 bg-slate-950/30 p-4 md:p-5">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight text-white md:text-xl">
+                View document (PDF)
+              </h2>
+              <p className="mt-1 text-sm text-blue-100">
+                Read the official sheet below in your browser, open it in a new tab, or download a copy.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <a
+                  href={post.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Open in new tab
+                </a>
+                <a
+                  href={post.pdfUrl}
+                  download="Prinstine-Academy-New-Outled-Cohort-1-2026.pdf"
+                  className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-amber-300"
+                >
+                  Download PDF
+                </a>
+              </div>
+            </div>
+            <iframe
+              title={`${post.title} — PDF preview`}
+              src={post.pdfUrl}
+              className="min-h-[min(70vh,720px)] w-full rounded-lg border border-white/10 bg-slate-900/40"
+            />
+          </div>
+        ) : null}
         <div
           className="prose prose-invert max-w-none prose-headings:text-white prose-strong:text-amber-300 prose-p:text-blue-100"
           dangerouslySetInnerHTML={{ __html: post.content || '' }}

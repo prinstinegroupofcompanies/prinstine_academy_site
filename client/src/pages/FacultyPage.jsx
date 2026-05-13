@@ -4,8 +4,8 @@ import usePageMeta from '../hooks/usePageMeta'
 
 const FACULTY = [
   { name: 'Mr. Prince S Cooper', role: 'Chief Executive Officer', qualifications: 'Bsc, MBA, MA, PGDE, DIP-RE' },
-  { name: 'Bishop Dr Jackson G Weah', role: 'Head of Academy Affairs', qualifications: 'Academic leadership and institutional management' },
-  { name: 'Ms. Frances B Wallace', role: 'Coordinator', qualifications: 'B.Sc., Certificates' },
+  { name: 'Bishop Dr Jackson G Weah', role: 'Head of Academic Affairs', qualifications: 'Academic leadership and institutional management' },
+  { name: 'Ms. Frances B Wallace', role: 'Coordinator-Prinstine Academy', qualifications: 'B.Sc., Certificates' },
   { name: 'Mrs. Ernestine L.V Cooper', qualifications: 'MBA' },
   { name: 'Mr. James S Tokpa', qualifications: 'B.Sc., MBA Candidate' },
   { name: 'Dr. Mory Sunaworo', qualifications: 'PhD' },
@@ -23,7 +23,7 @@ const FACULTY = [
   { name: 'Mr Edmond K Benicks', qualifications: 'B.Sc., MBA Candidate, DIP-Tech' },
   { name: 'Mr Samson Bryant', qualifications: 'DIP-ICT, Full-Stack Developer, Data Engineer' },
   { name: 'Mr Adebayo Akinloye', qualifications: 'Assc.CIPD' },
-  { name: 'Mrs. Yolaine Kata Waka Metzger', qualifications: 'MPH' },
+  { name: 'Mrs. Yolaine Kate Waka Metzger', qualifications: 'MPH' },
   { name: 'Mr. Leonard Metzger', qualifications: 'M.Sc- Information Technology' },
   { name: 'Booker T. Harris', qualifications: 'CPA' },
   { name: 'Joy Odell Nagbe', qualifications: 'MSc' },
@@ -32,6 +32,7 @@ const FACULTY = [
   { name: 'Mr. Edward K. Zebe', qualifications: 'MSc' },
   { name: 'Ms. Jamesetta L. Sieh', qualifications: 'Bsc, Msc Cand' },
   { name: 'Mr. Bethel Anthony', qualifications: 'Bsc, Dip Crt-Marketing' },
+  { name: 'Nya Parwon', qualifications: 'MSc, PgDip, BSc, BSPE' },
 ]
 
 export default function FacultyPage() {

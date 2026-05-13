@@ -1,4 +1,8 @@
-import { findAssetUrl } from './assetLibrary'
+import newOutledCohort12026Pdf from '../assets/Prinstine Academy New Outled Cohort 1 2026 Final 1.pdf?url'
+import { findAssetUrl, getAssetUrlsMatchingNormalizedParts } from './assetLibrary'
+
+/** Public URL for the New Outled Cohort 1 (2026) information PDF (used on blog listing and articles). */
+export const newOutledCohort12026PdfUrl = newOutledCohort12026Pdf
 
 function slideSet(prefix, count) {
   return Array.from({ length: count }, (_, index) => {
@@ -10,8 +14,33 @@ function slideSet(prefix, count) {
 const dinnerSlides = slideSet('Dinner-night', 10)
 const graduationSlides = slideSet('Graduation', 10)
 const awardSlides = [findAssetUrl('award-1')].filter(Boolean)
+const newOutledCohort1Slides = getAssetUrlsMatchingNormalizedParts('whatsapp', '20260513')
 
 export const localBlogPosts = [
+  {
+    id: 'new-outled-cohort-1-2026',
+    title: 'New Outled Cohort 1 (2026)',
+    excerpt:
+      'Photos from the cohort and the official information sheet—view the PDF in your browser or download a copy.',
+    image: newOutledCohort1Slides[0] || '',
+    slides: newOutledCohort1Slides,
+    pdfUrl: newOutledCohort12026PdfUrl,
+    content: `
+      <p>
+        We are pleased to share highlights from <strong>New Outled Cohort 1 (2026)</strong> and the official academy
+        information document for families and the public.
+      </p>
+      <p>
+        Use the <strong>View document</strong> area on this page to read the PDF, or download it using the button
+        provided if you prefer an offline copy.
+      </p>
+    `,
+    meta: {
+      category: 'Programs',
+      caption: 'New Outled Cohort 1 (2026)',
+      location: 'Prinstine Academy',
+    },
+  },
   {
     id: 'dinner-night-program',
     title: 'Dinner Night Program',

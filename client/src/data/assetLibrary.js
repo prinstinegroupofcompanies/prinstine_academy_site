@@ -36,3 +36,13 @@ export const allAssets = assets.map((item) => ({
   fileName: item.fileName,
   url: item.url,
 }))
+
+/** URLs for assets whose normalized filename includes every normalized substring, sorted by file name. */
+export function getAssetUrlsMatchingNormalizedParts(...parts) {
+  const needles = parts.map(normalize).filter(Boolean)
+  if (!needles.length) return []
+  return assets
+    .filter((a) => needles.every((n) => a.normalized.includes(n)))
+    .sort((a, b) => a.fileName.localeCompare(b.fileName))
+    .map((a) => a.url)
+}
