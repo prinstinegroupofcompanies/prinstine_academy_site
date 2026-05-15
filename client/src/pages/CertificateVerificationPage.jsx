@@ -28,7 +28,7 @@ export default function CertificateVerificationPage() {
 
       <div className="max-w-2xl rounded-2xl border border-blue-200/20 bg-white/5 p-5 md:p-6">
         <p className="text-sm leading-relaxed text-blue-100">
-          Click below to continue to the official external certificate verification page.
+        Click below to log into your student portal and to verify your certificate after graduation.
         </p>
         <a
           href={verificationUrl}
