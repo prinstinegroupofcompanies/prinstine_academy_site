@@ -9,18 +9,36 @@ import { User } from '../db/orm.js'
 async function ensureAdminAccess() {
   const defaultEmail = 'admin@prinstineacademy.org'
   const defaultPassword = 'Admin@PrinstineAcademy2026'
-  const emailRaw = process.env.ADMIN_EMAIL || defaultEmail
-  const password = process.env.ADMIN_PASSWORD || defaultPassword
-  const email = emailRaw.trim().toLowerCase()
-  if (env.isProduction && (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD)) {
+  const emailFromEnv = (process.env.ADMIN_EMAIL ?? '').trim()
+  const passwordFromEnv = process.env.ADMIN_PASSWORD ?? ''
+  const explicitCredentials =
+    Boolean(emailFromEnv) && Boolean(String(passwordFromEnv).trim())
+
+  const email = (emailFromEnv || defaultEmail).trim().toLowerCase()
+  const password = explicitCredentials
+    ? String(passwordFromEnv)
+    : passwordFromEnv || defaultPassword
+
+  if (env.isProduction && !explicitCredentials) {
     console.warn(
-      '[boot] ADMIN_EMAIL / ADMIN_PASSWORD not fully set; using default admin credentials. Set both env vars to override.',
+      '[boot] Set ADMIN_EMAIL and ADMIN_PASSWORD on Render so the admin account matches your login credentials.',
     )
   }
-  const existing = await User.findByEmail(email)
-  if (existing) return
+
   const hash = await bcrypt.hash(password, 10)
+  const existing = await User.findByEmail(email)
+
+  if (existing) {
+    // Keep production logins in sync when Render env credentials are set.
+    if (explicitCredentials || !env.isProduction) {
+      await User.updatePasswordAndRole(existing.id, hash, 'admin')
+      console.log(`[boot] Admin credentials synced for ${email}`)
+    }
+    return
+  }
+
   await User.create({ email, password: hash, role: 'admin' })
+  console.log(`[boot] Admin user created for ${email}`)
 }
 
 validateProductionBoot()

@@ -61,13 +61,16 @@ export default function AdminLayout() {
       setUser(nextUser ?? null)
       setAuthError('')
     } catch (e) {
+      const status = e?.response?.status
       const msg =
         e?.response?.data?.error?.message ||
-        (e?.code === 'ECONNABORTED'
-          ? 'Request timed out. Check your connection and try again.'
-          : e?.message === 'Network Error'
-            ? 'Could not reach the server. Check your connection.'
-            : 'Login failed')
+        (status === 404
+          ? 'API not found. Check Vercel RENDER_API_URL / VITE_API_URL and Render deploy.'
+          : e?.code === 'ECONNABORTED'
+            ? 'Request timed out. Check your connection and try again.'
+            : e?.message === 'Network Error'
+              ? 'Could not reach the API. Check Render is running and CORS allows this site.'
+              : 'Login failed')
       setAuthError(msg)
     }
   }

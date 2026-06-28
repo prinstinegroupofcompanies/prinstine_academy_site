@@ -38,6 +38,14 @@ export const User = {
     return rows[0] ?? null
   },
 
+  async updatePasswordAndRole(id, passwordHash, role) {
+    const { rows } = await query(
+      'UPDATE users SET password = ?, role = ? WHERE id = ? RETURNING *',
+      [passwordHash, role, id]
+    )
+    return rows[0] ?? null
+  },
+
   async list() {
     const { rows } = await query('SELECT id, email, role FROM users ORDER BY id')
     return rows

@@ -1,15 +1,24 @@
 import axios from 'axios'
 
-const configuredBase = String(import.meta.env.VITE_API_URL || '').trim()
-const normalizedConfiguredBase = configuredBase.replace(/\/+$/, '')
+function normalizeApiOrigin(value) {
+  const trimmed = String(value || '').trim().replace(/\/+$/, '')
+  if (!trimmed) return ''
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed.replace(/\/api$/i, '')
+  }
+  return trimmed
+}
+
+const configuredBase = normalizeApiOrigin(import.meta.env.VITE_API_URL)
 
 /**
  * API base URL:
- * - Leave `VITE_API_URL` unset to call `/api` on the **same origin** as the site (recommended).
- *   Production: configure your host to reverse-proxy `/api` → backend (see `vercel.json`).
- * - Set `VITE_API_URL` only if you cannot proxy (e.g. static host) — then use the full API origin.
+ * - Leave `VITE_API_URL` unset in production to call `/api` on the same origin (Vercel proxy → Render).
+ * - Set `VITE_API_URL` to your Render origin (no trailing slash, no `/api` suffix) for direct calls.
  */
-const baseURL = normalizedConfiguredBase || ''
+const baseURL =
+  configuredBase ||
+  (import.meta.env.DEV ? normalizeApiOrigin('http://localhost:3000') : '')
 
 // Short default for read-heavy calls; mutations (registration, subscribe) use per-request timeouts.
 const configuredTimeout = Number(import.meta.env.VITE_API_TIMEOUT_MS)
@@ -35,6 +44,13 @@ export const api = axios.create({
   },
 })
 
+function minAuthTimeoutMs(config) {
+  const path = String(config.url || '').split('?')[0]
+  if (!/\/api\/auth\//.test(path)) return null
+  const n = Number(import.meta.env.VITE_AUTH_API_TIMEOUT_MS)
+  return Number.isFinite(n) && n > 0 ? n : 30000
+}
+
 function minPublicMutationTimeoutMs(config) {
   const method = (config.method || 'get').toLowerCase()
   if (method !== 'post') return null
@@ -51,6 +67,12 @@ function minPublicMutationTimeoutMs(config) {
 }
 
 api.interceptors.request.use((config) => {
+  const authMin = minAuthTimeoutMs(config)
+  if (authMin != null) {
+    const cur = Number(config.timeout)
+    config.timeout = Math.max(Number.isFinite(cur) ? cur : 0, authMin)
+  }
+
   const pubMin = minPublicMutationTimeoutMs(config)
   if (pubMin != null) {
     const cur = Number(config.timeout)

@@ -30,6 +30,10 @@ export function createApp() {
   )
   app.use(express.json({ limit: '1mb' }))
 
+  app.get('/', (_req, res) => {
+    res.json({ ok: true, service: 'prinstine-academy-api' })
+  })
+
   app.use('/uploads', express.static(join(serverRoot, 'uploads')))
 
   app.use('/api', apiRouter)

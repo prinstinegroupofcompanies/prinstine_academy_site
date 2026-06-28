@@ -9,13 +9,14 @@ const email = emailRaw.trim().toLowerCase()
 
 async function main() {
   await connectDatabase()
+  const hash = await bcrypt.hash(password, 10)
   const existing = await User.findByEmail(email)
   if (existing) {
-    console.log('Admin user already exists:', email)
+    await User.updatePasswordAndRole(existing.id, hash, 'admin')
+    console.log('Admin credentials updated for:', email)
     await closeDatabase()
     return
   }
-  const hash = await bcrypt.hash(password, 10)
   await User.create({ email, password: hash, role: 'admin' })
   console.log('Seeded admin user:', email)
   await closeDatabase()

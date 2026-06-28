@@ -22,7 +22,6 @@ const FACULTY = [
   { name: 'Mr. Nuitah T. Womgboh', qualifications: 'M.Sc.' },
   { name: 'Mr Alfred Morris', qualifications: 'Solar Engineer' },
   { name: 'Mr Edmond K Benicks', qualifications: 'B.Sc., MBA Candidate, DIP-Tech' },
-  { name: 'Mr Samson Bryant', qualifications: 'DIP-ICT, Full-Stack Developer, Data Engineer' },
   { name: 'Mr Adebayo Akinloye', qualifications: 'Assc.CIPD' },
   { name: 'Mrs. Yolaine Kate Waka Metzger', qualifications: 'MPH' },
   { name: 'Mr. Leonard Metzger', qualifications: 'M.Sc- Information Technology' },
