@@ -1,1 +1,11 @@
-{"private":true,"scripts":{"dev":"cd client && npm run dev","dev:server":"cd server && npm run dev","start":"cd server && npm start"}}
+{
+  "private": true,
+  "scripts": {
+    "postinstall": "node scripts/developer-notice.mjs",
+    "predev": "node scripts/check-primary-developer.mjs",
+    "dev": "cd client && npm run dev",
+    "predev:server": "node scripts/check-primary-developer.mjs",
+    "dev:server": "cd server && npm run dev",
+    "start": "cd server && npm start"
+  }
+}

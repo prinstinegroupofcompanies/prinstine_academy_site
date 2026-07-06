@@ -6,6 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node db/migrate.js && node src/index.js",
+    "predev": "node ../scripts/check-primary-developer.mjs",
     "dev": "node --watch src/index.js",
     "db:migrate": "node db/migrate.js",
     "db:seed": "node db/seed.js"

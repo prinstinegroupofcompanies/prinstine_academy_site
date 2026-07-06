@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "node ../scripts/developer-notice.mjs",
+    "predev": "node ../scripts/check-primary-developer.mjs",
     "dev": "vite",
     "build": "node scripts/write-vercel-api-proxy.mjs && vite build",
     "lint": "eslint .",

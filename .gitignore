@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Environment (Primary Developer secrets — never commit)
+.env
+.env.local
+.env.*.local
+client/.env.local
+server/.env
+
+# Build output
+client/dist/
+server/uploads/
+
+# SQLite local data
+server/data/
+*.db
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
