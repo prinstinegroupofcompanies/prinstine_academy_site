@@ -4,7 +4,7 @@ import { createApp } from './app.js'
 import { env } from './config/env.js'
 import { validateProductionBoot } from './config/validateProduction.js'
 import { connectDatabase, getDialect } from '../db/connection.js'
-import { User } from '../db/orm.js'
+import { bootstrapAdmin } from './bootstrapAdmin.js'
 
 async function ensureAdminAccess() {
   const defaultEmail = 'admin@prinstineacademy.org'
@@ -25,20 +25,16 @@ async function ensureAdminAccess() {
     )
   }
 
-  const hash = await bcrypt.hash(password, 10)
-  const existing = await User.findByEmail(email)
-
-  if (existing) {
-    // Keep production logins in sync when Render env credentials are set.
-    if (explicitCredentials || !env.isProduction) {
-      await User.updatePasswordAndRole(existing.id, hash, 'admin')
-      console.log(`[boot] Admin credentials synced for ${email}`)
-    }
+  const result = await bootstrapAdmin({ email, password, role: 'admin' })
+  if (result.created) {
+    console.log(`[boot] Admin user created for ${result.email}`)
     return
   }
-
-  await User.create({ email, password: hash, role: 'admin' })
-  console.log(`[boot] Admin user created for ${email}`)
+  if (result.updated) {
+    console.log(`[boot] Admin credentials synced for ${result.email}`)
+    return
+  }
+  console.warn(`[boot] Admin account bootstrap skipped: ${result.reason}`)
 }
 
 validateProductionBoot()
