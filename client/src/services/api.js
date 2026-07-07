@@ -25,7 +25,7 @@ const configuredTimeout = Number(import.meta.env.VITE_API_TIMEOUT_MS)
 const requestTimeoutMs =
   Number.isFinite(configuredTimeout) && configuredTimeout > 0
     ? configuredTimeout
-    : 1000
+    : 10000
 
 const authenticatedTimeoutConfigured = Number(
   import.meta.env.VITE_AUTHENTICATED_API_TIMEOUT_MS

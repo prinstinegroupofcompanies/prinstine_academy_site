@@ -65,12 +65,14 @@ export default function AdminLayout() {
       const msg =
         e?.response?.data?.error?.message ||
         (status === 404
-          ? 'API not found. Check Vercel RENDER_API_URL / VITE_API_URL and Render deploy.'
-          : e?.code === 'ECONNABORTED'
-            ? 'Request timed out. Check your connection and try again.'
-            : e?.message === 'Network Error'
-              ? 'Could not reach the API. Check Render is running and CORS allows this site.'
-              : 'Login failed')
+          ? 'API endpoint not found. Check that the Render backend is deployed and VITE_API_URL points to the correct backend origin.'
+          : status === 401
+            ? 'Invalid email or password.'
+            : e?.code === 'ECONNABORTED'
+              ? 'The backend request timed out. Check the Render service and the VITE_API_URL setting.'
+              : e?.message === 'Network Error'
+                ? 'Could not reach the backend. Verify the Render deployment is running and VITE_API_URL is configured correctly.'
+                : 'Login failed')
       setAuthError(msg)
     }
   }
