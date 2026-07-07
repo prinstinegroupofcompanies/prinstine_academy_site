@@ -18,8 +18,8 @@ export function validateProductionBoot() {
   }
   const cors = (process.env.CORS_ORIGIN ?? '').trim()
   if (!cors) {
-    throw new Error(
-      'Production requires CORS_ORIGIN (comma-separated frontend origins, e.g. https://prinstineacademy.org,https://www.prinstineacademy.org)',
+    console.warn(
+      '[boot] CORS_ORIGIN not set; using default-safe CORS origins for the frontend.',
     )
   }
 }

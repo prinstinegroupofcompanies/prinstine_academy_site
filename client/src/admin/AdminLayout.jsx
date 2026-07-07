@@ -19,6 +19,7 @@ export default function AdminLayout() {
   )
   const [authError, setAuthError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const isAuthenticated = useMemo(() => Boolean(user), [user])
@@ -53,6 +54,7 @@ export default function AdminLayout() {
   async function handleLogin(event) {
     event.preventDefault()
     setAuthError('')
+    setSubmitting(true)
     try {
       const data = await adminLogin(email, password)
       // Prefer user from login response so we do not depend on a second request
@@ -65,15 +67,17 @@ export default function AdminLayout() {
       const msg =
         e?.response?.data?.error?.message ||
         (status === 404
-          ? 'API endpoint not found. Check that the Render backend is deployed and VITE_API_URL points to the correct backend origin.'
+          ? 'API endpoint not found. Check that the Render backend is deployed and the Vercel proxy is routing /api correctly.'
           : status === 401
             ? 'Invalid email or password.'
             : e?.code === 'ECONNABORTED'
-              ? 'The backend request timed out. Check the Render service and the VITE_API_URL setting.'
+              ? 'The backend request timed out. Check the Render service and the /api proxy route.'
               : e?.message === 'Network Error'
-                ? 'Could not reach the backend. Verify the Render deployment is running and VITE_API_URL is configured correctly.'
+                ? 'Could not reach the backend. Verify the Render deployment is running and the Vercel /api proxy is configured correctly.'
                 : 'Login failed')
       setAuthError(msg)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -128,8 +132,8 @@ export default function AdminLayout() {
             type="password"
             placeholder="Password"
           />
-          <button type="submit" className="btn-primary">
-            Sign in
+          <button type="submit" className="btn-primary" disabled={submitting}>
+            {submitting ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
         {authError ? (

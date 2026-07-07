@@ -13,11 +13,11 @@ const configuredBase = normalizeApiOrigin(import.meta.env.VITE_API_URL)
 
 /**
  * API base URL:
- * - Leave `VITE_API_URL` unset in production to call `/api` on the same origin (Vercel proxy → Render).
- * - Set `VITE_API_URL` to your Render origin (no trailing slash, no `/api` suffix) for direct calls.
+ * - In production, prefer the same-origin `/api` route so Vercel can proxy to Render without CORS issues.
+ * - In local development, use the local backend origin.
  */
 const baseURL =
-  configuredBase ||
+  (import.meta.env.PROD ? '' : configuredBase) ||
   (import.meta.env.DEV ? normalizeApiOrigin('http://localhost:3000') : '')
 
 // Short default for read-heavy calls; mutations (registration, subscribe) use per-request timeouts.

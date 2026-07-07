@@ -11,20 +11,24 @@ function uniqueOrigins(origins) {
   return [...new Set(origins.map((s) => normalizeOrigin(s)).filter(Boolean))]
 }
 
-function parseCorsOrigin() {
-  const raw = process.env.CORS_ORIGIN
-  if (raw == null || raw === '') {
-    return true
-  }
-  const envList = raw.split(',')
+export function parseCorsOrigin(rawValue = process.env.CORS_ORIGIN) {
   const productionDefaults = [
     'https://prinstineacademy.org',
     'https://www.prinstineacademy.org',
     'https://prinstineacademy.vercel.app',
+    'https://prinstine-academy-site.vercel.app',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
   ]
+
+  if (rawValue == null || rawValue === '') {
+    return productionDefaults
+  }
+
+  const envList = String(rawValue).split(',')
   const list = uniqueOrigins([...envList, ...productionDefaults])
   if (list.length === 0) {
-    return true
+    return productionDefaults
   }
   if (list.length === 1) {
     return list[0]
