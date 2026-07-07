@@ -6,10 +6,10 @@ Prinstine Academy public website and admin dashboard.
 
 This repository is **restricted**. Do not install, run, modify, or deploy without written approval from the **Primary Developer**.
 
-| | |
-|---|---|
-| **Primary Developer** | Developer |
-| **Contact** | itconsultantbryant@gmail.com |
+|                       |                              |
+| --------------------- | ---------------------------- |
+| **Primary Developer** | Developer                    |
+| **Contact**           | itconsultantbryant@gmail.com |
 
 Unauthorized developers must **stop** and contact the Primary Developer before:
 
@@ -46,7 +46,7 @@ Create `client/.env.local` (never commit):
 
 ```env
 VITE_SITE_LIVE=true
-PRINSTINE_PRIMARY_DEV_KEY=your-private-key-at-least-16-chars
+VITE_PRINSTINE_PRIMARY_DEV_KEY=your-private-key-at-least-16-chars
 ```
 
 Create `server/.env` with the same `PRINSTINE_PRIMARY_DEV_KEY` (or `SITE_LIVE=true`).

@@ -2,10 +2,10 @@
 
 ## Contact
 
-| Field | Value |
-|-------|--------|
-| **Name** | Developer |
-| **Role** | Primary Developer |
+| Field     | Value                        |
+| --------- | ---------------------------- |
+| **Name**  | Developer                    |
+| **Role**  | Primary Developer            |
 | **Email** | itconsultantbryant@gmail.com |
 
 ## For all other developers
@@ -53,7 +53,7 @@ SITE_LIVE=true
 
 ```env
 VITE_SITE_LIVE=true
-PRINSTINE_PRIMARY_DEV_KEY=choose-a-long-private-secret
+VITE_PRINSTINE_PRIMARY_DEV_KEY=choose-a-long-private-secret
 ```
 
 `server/.env`:
