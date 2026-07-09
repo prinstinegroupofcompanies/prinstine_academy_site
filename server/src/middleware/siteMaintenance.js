@@ -4,11 +4,16 @@ const PRIMARY_DEVELOPER_EMAIL = 'itconsultantbryant@gmail.com'
 export const MAINTENANCE_HOLD_MS = 11 * 60 * 1000
 
 function isSiteLive() {
-  return (
+  if (
     process.env.SITE_LIVE === 'true' ||
     process.env.VITE_SITE_LIVE === 'true' ||
     process.env.PRINSTINE_SITE_LIVE === 'true'
-  )
+  ) {
+    return true
+  }
+
+  const nodeEnv = String(process.env.NODE_ENV || '').toLowerCase()
+  return nodeEnv === 'development' || nodeEnv === 'dev'
 }
 
 function isHealthCheck(req) {

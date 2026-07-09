@@ -5,10 +5,6 @@
   "outputDirectory": "client/dist",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://prinstine-academy-api.onrender.com/api/:path*"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

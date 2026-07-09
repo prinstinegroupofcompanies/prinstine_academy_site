@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { adminLogin, getSession, logout } from '../services/admin/authService'
 import usePageMeta from '../hooks/usePageMeta'
 import { adminRoutes } from './adminRoutes'
+import { getAdminAuthErrorMessage } from './authErrorMessages'
 
 const navItems = adminRoutes.map(({ to, label, end }) => ({ to, label, end }))
 
@@ -63,19 +64,7 @@ export default function AdminLayout() {
       setUser(nextUser ?? null)
       setAuthError('')
     } catch (e) {
-      const status = e?.response?.status
-      const msg =
-        e?.response?.data?.error?.message ||
-        (status === 404
-          ? 'API endpoint not found. Check that the Render backend is deployed and the Vercel proxy is routing /api correctly.'
-          : status === 401
-            ? 'Invalid email or password.'
-            : e?.code === 'ECONNABORTED'
-              ? 'The backend request timed out. Check the Render service and the /api proxy route.'
-              : e?.message === 'Network Error'
-                ? 'Could not reach the backend. Verify the Render deployment is running and the Vercel /api proxy is configured correctly.'
-                : 'Login failed')
-      setAuthError(msg)
+      setAuthError(getAdminAuthErrorMessage(e, { isDev: import.meta.env.DEV }))
     } finally {
       setSubmitting(false)
     }

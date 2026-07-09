@@ -3,6 +3,19 @@ import axios from 'axios'
 function normalizeApiOrigin(value) {
   const trimmed = String(value || '').trim().replace(/\/+$/, '')
   if (!trimmed) return ''
+
+  const supabaseDashboardMatch = trimmed.match(
+    /^https?:\/\/supabase\.com\/dashboard\/(?:project|projects)\/([^/?#]+)(?:[/?#].*)?$/i
+  )
+  if (supabaseDashboardMatch) {
+    return `https://${supabaseDashboardMatch[1]}.supabase.co`
+  }
+
+  const supabaseProjectMatch = trimmed.match(/^https?:\/\/([^.]+)\.supabase\.co(?:[/?#].*)?$/i)
+  if (supabaseProjectMatch) {
+    return `https://${supabaseProjectMatch[1]}.supabase.co`
+  }
+
   if (/^https?:\/\//i.test(trimmed)) {
     return trimmed.replace(/\/api$/i, '')
   }
@@ -17,7 +30,7 @@ const configuredBase = normalizeApiOrigin(import.meta.env.VITE_API_URL)
  * - In local development, use the local backend origin.
  */
 const baseURL =
-  (import.meta.env.PROD ? '' : configuredBase) ||
+  configuredBase ||
   (import.meta.env.DEV ? normalizeApiOrigin('http://localhost:3000') : '')
 
 // Short default for read-heavy calls; mutations (registration, subscribe) use per-request timeouts.
