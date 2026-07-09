@@ -1,6 +1,6 @@
-import { Subscriber } from '../../db/orm.js'
 import { AppError } from '../lib/AppError.js'
 import { asyncHandler } from '../middleware/asyncHandler.js'
+import { createSubscriber as createSupabaseSubscriber, listSubscribers as listSupabaseSubscribers } from '../lib/supabaseBackend.js'
 
 function parseSubscriberBody(body) {
   if (!body || typeof body !== 'object') {
@@ -23,7 +23,7 @@ function parseSubscriberBody(body) {
 export const createSubscriber = asyncHandler(async (req, res) => {
   const payload = parseSubscriberBody(req.body)
   try {
-    const created = await Subscriber.create(payload)
+    const created = await createSupabaseSubscriber(payload)
     res.status(201).json({
       message: 'Subscription received',
       subscriber: created,
@@ -37,6 +37,6 @@ export const createSubscriber = asyncHandler(async (req, res) => {
 })
 
 export const listSubscribers = asyncHandler(async (_req, res) => {
-  const rows = await Subscriber.list()
+  const rows = await listSupabaseSubscribers()
   res.json(rows)
 })

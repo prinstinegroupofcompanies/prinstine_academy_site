@@ -1,6 +1,6 @@
-import { Certificate, Course } from '../../db/orm.js'
 import { AppError } from '../lib/AppError.js'
 import { asyncHandler } from '../middleware/asyncHandler.js'
+import { supabaseDataService } from '../lib/supabaseDataService.js'
 
 /**
  * @param {Record<string, unknown>} row
@@ -56,22 +56,23 @@ export const addCertificate = asyncHandler(async (req, res) => {
     throw new AppError('status must be one of: pending, issued, revoked', 400)
   }
 
-  const course = await Course.findById(courseId)
-  if (!course) {
+  const courseResult = await supabaseDataService.selectFrom('courses', { filters: { id: courseId } })
+  if (!courseResult.ok || !courseResult.data?.[0]) {
     throw new AppError('Course not found', 400)
   }
 
-  const created = await Certificate.create({
-    studentName,
-    courseId,
-    certificateId,
+  const { ok, data: created } = await supabaseDataService.insertInto('certificates', {
+    student_name: studentName,
+    course_id: courseId,
+    certificate_id: certificateId,
     status,
   })
-  if (!created) {
+  if (!ok || !created) {
     throw new AppError('Could not create certificate', 500)
   }
-  const full = await Certificate.findWithCourseById(Number(created.id))
-  res.status(201).json({ certificate: certificateToDto(full) })
+  const full = await supabaseDataService.selectFrom('certificates', { filters: { id: created.id } })
+  const course = full.data?.[0]
+  res.status(201).json({ certificate: certificateToDto({ ...course, course_title: courseResult.data[0].title }) })
 })
 
 export const verifyCertificate = asyncHandler(async (req, res) => {
@@ -95,10 +96,27 @@ export const verifyCertificate = asyncHandler(async (req, res) => {
     )
   }
 
-  const rows = await Certificate.verify({
-    certificateId: certificateId || undefined,
-    studentName: studentName || undefined,
+  const filters = {}
+  if (certificateId) filters.certificate_id = certificateId
+  if (studentName) filters.student_name = studentName
+  const { ok, data } = await supabaseDataService.selectFrom('certificates', {
+    filters,
+    orderBy: 'issue_date',
   })
+  if (!ok) {
+    throw new AppError('Could not verify certificate', 500)
+  }
+  const rows = await Promise.all(
+    (data || []).map(async (row) => {
+      const courseResult = row.course_id
+        ? (await supabaseDataService.selectFrom('courses', { filters: { id: row.course_id } })).data?.[0]
+        : null
+      return {
+        ...row,
+        course_title: courseResult?.title ?? null,
+      }
+    }),
+  )
   res.json({
     certificates: rows.map((row) => certificateToDto(row)),
   })

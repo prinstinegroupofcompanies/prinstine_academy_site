@@ -1,7 +1,7 @@
-import { Category, Course } from '../../db/orm.js'
 import { AppError } from '../lib/AppError.js'
 import { removeUploadedAsset, uploadImageFile } from '../lib/mediaStorage.js'
 import { asyncHandler } from '../middleware/asyncHandler.js'
+import { supabaseDataService } from '../lib/supabaseDataService.js'
 
 /**
  * @param {Record<string, unknown>} row
@@ -83,8 +83,10 @@ async function requireCategoryIfSet(categoryId) {
   if (categoryId == null) {
     return
   }
-  const cat = await Category.findById(categoryId)
-  if (!cat) {
+  const { ok, data } = await supabaseDataService.selectFrom('categories', {
+    filters: { id: categoryId },
+  })
+  if (!ok || !data?.[0]) {
     throw new AppError('Category not found', 400)
   }
 }
@@ -99,8 +101,25 @@ export const listCourses = asyncHandler(async (req, res) => {
     }
     filter = n
   }
-  const rows = await Course.listWithCategory({ categoryId: filter })
-  res.json({ courses: rows.map((r) => courseToDto(r)) })
+  const { ok, data } = await supabaseDataService.selectFrom('courses', {
+    orderBy: 'title',
+    filters: filter == null ? {} : { category_id: filter },
+  })
+  if (!ok) {
+    throw new AppError('Could not load courses', 500)
+  }
+  const courses = await Promise.all(
+    (data || []).map(async (row) => {
+      const categoryRow = row.category_id
+        ? (await supabaseDataService.selectFrom('categories', { filters: { id: row.category_id } })).data?.[0]
+        : null
+      return courseToDto({
+        ...row,
+        category_name: categoryRow?.name ?? null,
+      })
+    }),
+  )
+  res.json({ courses })
 })
 
 export const getCourse = asyncHandler(async (req, res) => {
@@ -108,11 +127,16 @@ export const getCourse = asyncHandler(async (req, res) => {
   if (!Number.isFinite(id) || id < 1) {
     throw new AppError('Invalid id', 400)
   }
-  const row = await Course.findWithCategory(id)
-  if (!row) {
+  const { ok, data } = await supabaseDataService.selectFrom('courses', {
+    filters: { id },
+  })
+  if (!ok || !data?.[0]) {
     throw new AppError('Course not found', 404)
   }
-  res.json({ course: courseToDto(row) })
+  const categoryRow = data[0].category_id
+    ? (await supabaseDataService.selectFrom('categories', { filters: { id: data[0].category_id } })).data?.[0]
+    : null
+  res.json({ course: courseToDto({ ...data[0], category_name: categoryRow?.name ?? null }) })
 })
 
 /**
@@ -157,19 +181,21 @@ export const createCourse = asyncHandler(async (req, res) => {
       ? null
       : String(b.description)
   const duration = parseOptionalInt(b.duration, null)
-  const row = await Course.create({
+  const { ok, data: row } = await supabaseDataService.insertInto('courses', {
     title: b.title,
     description,
     image: imagePath,
     duration: duration == null ? null : duration,
     price,
-    categoryId,
+    category_id: categoryId,
   })
-  if (!row) {
+  if (!ok || !row) {
     throw new AppError('Could not create course', 500)
   }
-  const withCat = await Course.findWithCategory(Number(row.id))
-  res.status(201).json({ course: courseToDto(withCat) })
+  const categoryRow = row.category_id
+    ? (await supabaseDataService.selectFrom('categories', { filters: { id: row.category_id } })).data?.[0]
+    : null
+  res.status(201).json({ course: courseToDto({ ...row, category_name: categoryRow?.name ?? null }) })
 })
 
 export const updateCourse = asyncHandler(async (req, res) => {
@@ -177,7 +203,8 @@ export const updateCourse = asyncHandler(async (req, res) => {
   if (!Number.isFinite(id) || id < 1) {
     throw new AppError('Invalid id', 400)
   }
-  const existing = await Course.findById(id)
+  const existingResult = await supabaseDataService.selectFrom('courses', { filters: { id } })
+  const existing = existingResult.data?.[0]
   if (!existing) {
     throw new AppError('Course not found', 404)
   }
@@ -249,19 +276,22 @@ export const updateCourse = asyncHandler(async (req, res) => {
       image = null
     }
   }
-  const updated = await Course.update(id, {
+  const { ok } = await supabaseDataService.updateById('courses', id, {
     title,
     description,
     image,
     duration: duration == null ? null : Number(duration),
     price,
-    categoryId: categoryId ?? null,
+    category_id: categoryId ?? null,
   })
-  if (!updated) {
+  if (!ok) {
     throw new AppError('Could not update course', 500)
   }
-  const withCat = await Course.findWithCategory(id)
-  res.json({ course: courseToDto(withCat) })
+  const updatedData = (await supabaseDataService.selectFrom('courses', { filters: { id } })).data?.[0]
+  const categoryRow = updatedData?.category_id
+    ? (await supabaseDataService.selectFrom('categories', { filters: { id: updatedData.category_id } })).data?.[0]
+    : null
+  res.json({ course: courseToDto({ ...updatedData, category_name: categoryRow?.name ?? null }) })
 })
 
 export const deleteCourse = asyncHandler(async (req, res) => {
@@ -269,14 +299,15 @@ export const deleteCourse = asyncHandler(async (req, res) => {
   if (!Number.isFinite(id) || id < 1) {
     throw new AppError('Invalid id', 400)
   }
-  const existing = await Course.findById(id)
+  const existingResult = await supabaseDataService.selectFrom('courses', { filters: { id } })
+  const existing = existingResult.data?.[0]
   if (!existing) {
     throw new AppError('Course not found', 404)
   }
   if (existing.image) {
     await removeUploadedAsset(String(existing.image))
   }
-  const ok = await Course.deleteById(id)
+  const { ok } = await supabaseDataService.deleteById('courses', id)
   if (!ok) {
     throw new AppError('Could not delete course', 500)
   }

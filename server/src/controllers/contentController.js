@@ -1,7 +1,7 @@
-import { SiteContent } from '../../db/orm.js'
 import { AppError } from '../lib/AppError.js'
 import { removeUploadedAsset, uploadImageFile } from '../lib/mediaStorage.js'
 import { asyncHandler } from '../middleware/asyncHandler.js'
+import { supabaseDataService } from '../lib/supabaseDataService.js'
 
 const defaultSectionContent = {
   hero: {
@@ -60,7 +60,8 @@ function ensureJsonObject(value) {
 
 export const getSectionContent = asyncHandler(async (req, res) => {
   const section = normalizeSection(req.params.section)
-  const row = await SiteContent.getBySection(section)
+  const { ok, data } = await supabaseDataService.selectFrom('site_content', { filters: { section_name: section } })
+  const row = ok ? data?.[0] : null
   if (!row) {
     const fallback = defaultSectionContent[section] ?? {}
     return res.json({
@@ -89,13 +90,16 @@ export const putSectionContent = asyncHandler(async (req, res) => {
   const contentSource = body.content !== undefined ? body.content : body
   const content = ensureJsonObject(contentSource)
 
-  const saved = await SiteContent.upsert(section, content)
-  if (!saved) {
+  const { ok, data: saved } = await supabaseDataService.upsertInto('site_content', {
+    section_name: section,
+    content,
+  }, 'section_name')
+  if (!ok || !saved) {
     throw new AppError('Could not save content', 500)
   }
   return res.json({
     section,
-    content: saved.content,
+    content: saved.content ?? content,
     exists: true,
   })
 })
@@ -105,7 +109,8 @@ export const putSectionImage = asyncHandler(async (req, res) => {
   if (!req.file) {
     throw new AppError('image file is required', 400)
   }
-  const existing = await SiteContent.getBySection(section)
+  const existingResult = await supabaseDataService.selectFrom('site_content', { filters: { section_name: section } })
+  const existing = existingResult.data?.[0]
   const current = existing?.content ?? {}
   const oldImage =
     current &&
@@ -126,10 +131,16 @@ export const putSectionImage = asyncHandler(async (req, res) => {
       image: uploaded.url,
     },
   }
-  const saved = await SiteContent.upsert(section, merged)
+  const { ok, data: saved } = await supabaseDataService.upsertInto('site_content', {
+    section_name: section,
+    content: merged,
+  }, 'section_name')
+  if (!ok || !saved) {
+    throw new AppError('Could not save content', 500)
+  }
   return res.json({
     section,
-    content: saved.content,
+    content: saved.content ?? merged,
     exists: true,
   })
 })

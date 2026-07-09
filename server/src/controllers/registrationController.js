@@ -1,6 +1,6 @@
-import { Registration } from '../../db/orm.js'
 import { AppError } from '../lib/AppError.js'
 import { asyncHandler } from '../middleware/asyncHandler.js'
+import { createRegistration as createSupabaseRegistration, listRegistrations as listSupabaseRegistrations } from '../lib/supabaseBackend.js'
 
 function asString(value) {
   return String(value ?? '').trim()
@@ -48,7 +48,7 @@ function parseRegistrationBody(body) {
 
 export const createRegistration = asyncHandler(async (req, res) => {
   const payload = parseRegistrationBody(req.body)
-  const created = await Registration.create(payload)
+  const created = await createSupabaseRegistration(payload)
   res.status(201).json({
     message: 'Registration submitted successfully',
     registration: created,
@@ -56,7 +56,7 @@ export const createRegistration = asyncHandler(async (req, res) => {
 })
 
 export const listRegistrations = asyncHandler(async (_req, res) => {
-  const rows = await Registration.list()
+  const rows = await listSupabaseRegistrations()
   const countsByCourse = rows.reduce((acc, item) => {
     const key = String(item.course_title || 'Unspecified Course')
     acc[key] = (acc[key] || 0) + 1

@@ -40,6 +40,11 @@ const port = Number.parseInt(process.env.PORT ?? '3000', 10)
 const nodeEnv = process.env.NODE_ENV ?? 'development'
 
 export const env = {
+  /**
+   * Developer note:
+   * The existing Express backend can run with either the local SQLite/Postgres stack
+   * or a Supabase-hosted Postgres database. The app now recognizes Supabase env vars.
+   */
   port: Number.isFinite(port) ? port : 3000,
   nodeEnv,
   isDev: nodeEnv === 'development',

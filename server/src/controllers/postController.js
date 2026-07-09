@@ -1,7 +1,7 @@
-import { Post } from '../../db/orm.js'
 import { AppError } from '../lib/AppError.js'
 import { removeUploadedAsset, uploadImageFile } from '../lib/mediaStorage.js'
 import { asyncHandler } from '../middleware/asyncHandler.js'
+import { supabaseDataService } from '../lib/supabaseDataService.js'
 
 /**
  * `content` is stored as plain text and can contain rich-text HTML/Markdown.
@@ -55,8 +55,24 @@ function parsePostBody(req, isCreate) {
 }
 
 export const listPosts = asyncHandler(async (_req, res) => {
-  const rows = await Post.listWithAuthor()
-  res.json({ posts: rows.map((r) => postToDto(r)) })
+  const { ok, data } = await supabaseDataService.selectFrom('posts', { orderBy: 'id' })
+  if (!ok) {
+    throw new AppError('Could not load posts', 500)
+  }
+  const posts = await Promise.all(
+    (data || []).map(async (row) => {
+      const userRow = row.author_id
+        ? (await supabaseDataService.selectFrom('users', { filters: { id: row.author_id } })).data?.[0]
+        : null
+      return postToDto({
+        ...row,
+        author_id: row.author_id ?? null,
+        author_email: userRow?.email ?? null,
+        author_role: userRow?.role ?? null,
+      })
+    }),
+  )
+  res.json({ posts })
 })
 
 export const getPost = asyncHandler(async (req, res) => {
@@ -64,11 +80,14 @@ export const getPost = asyncHandler(async (req, res) => {
   if (!Number.isFinite(id) || id < 1) {
     throw new AppError('Invalid id', 400)
   }
-  const row = await Post.findWithAuthor(id)
-  if (!row) {
+  const { ok, data } = await supabaseDataService.selectFrom('posts', { filters: { id } })
+  if (!ok || !data?.[0]) {
     throw new AppError('Post not found', 404)
   }
-  res.json({ post: postToDto(row) })
+  const userRow = data[0].author_id
+    ? (await supabaseDataService.selectFrom('users', { filters: { id: data[0].author_id } })).data?.[0]
+    : null
+  res.json({ post: postToDto({ ...data[0], author_email: userRow?.email ?? null, author_role: userRow?.role ?? null }) })
 })
 
 export const createPost = asyncHandler(async (req, res) => {
@@ -76,17 +95,19 @@ export const createPost = asyncHandler(async (req, res) => {
   const imagePath = req.file
     ? (await uploadImageFile(req.file, { folder: 'posts' })).url
     : null
-  const row = await Post.create({
+  const { ok, data: row } = await supabaseDataService.insertInto('posts', {
     title: body.title,
     content: body.content,
     image: imagePath,
-    authorId: req.user.id,
+    author_id: req.user.id,
   })
-  if (!row) {
+  if (!ok || !row) {
     throw new AppError('Could not create post', 500)
   }
-  const full = await Post.findWithAuthor(Number(row.id))
-  res.status(201).json({ post: postToDto(full) })
+  const userRow = row.author_id
+    ? (await supabaseDataService.selectFrom('users', { filters: { id: row.author_id } })).data?.[0]
+    : null
+  res.status(201).json({ post: postToDto({ ...row, author_email: userRow?.email ?? null, author_role: userRow?.role ?? null }) })
 })
 
 export const updatePost = asyncHandler(async (req, res) => {
@@ -94,7 +115,8 @@ export const updatePost = asyncHandler(async (req, res) => {
   if (!Number.isFinite(id) || id < 1) {
     throw new AppError('Invalid id', 400)
   }
-  const existing = await Post.findById(id)
+  const existingResult = await supabaseDataService.selectFrom('posts', { filters: { id } })
+  const existing = existingResult.data?.[0]
   if (!existing) {
     throw new AppError('Post not found', 404)
   }
@@ -129,12 +151,16 @@ export const updatePost = asyncHandler(async (req, res) => {
       image = null
     }
   }
-  const updated = await Post.update(id, { title, content, image })
-  if (!updated) {
+  const { ok } = await supabaseDataService.updateById('posts', id, { title, content, image })
+  if (!ok) {
     throw new AppError('Could not update post', 500)
   }
-  const full = await Post.findWithAuthor(id)
-  res.json({ post: postToDto(full) })
+  const updatedResult = await supabaseDataService.selectFrom('posts', { filters: { id } })
+  const full = updatedResult.data?.[0]
+  const userRow = full?.author_id
+    ? (await supabaseDataService.selectFrom('users', { filters: { id: full.author_id } })).data?.[0]
+    : null
+  res.json({ post: postToDto({ ...full, author_email: userRow?.email ?? null, author_role: userRow?.role ?? null }) })
 })
 
 export const deletePost = asyncHandler(async (req, res) => {
@@ -142,14 +168,15 @@ export const deletePost = asyncHandler(async (req, res) => {
   if (!Number.isFinite(id) || id < 1) {
     throw new AppError('Invalid id', 400)
   }
-  const existing = await Post.findById(id)
+  const existingResult = await supabaseDataService.selectFrom('posts', { filters: { id } })
+  const existing = existingResult.data?.[0]
   if (!existing) {
     throw new AppError('Post not found', 404)
   }
   if (existing.image) {
     await removeUploadedAsset(String(existing.image))
   }
-  const ok = await Post.deleteById(id)
+  const { ok } = await supabaseDataService.deleteById('posts', id)
   if (!ok) {
     throw new AppError('Could not delete post', 500)
   }

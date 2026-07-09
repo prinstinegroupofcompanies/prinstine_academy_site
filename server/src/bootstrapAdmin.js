@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import { User } from '../db/orm.js'
+import { supabaseDataService } from './lib/supabaseDataService.js'
 
 export async function bootstrapAdmin({
   email,
@@ -14,18 +14,28 @@ export async function bootstrapAdmin({
   }
 
   const passwordHash = await bcrypt.hash(normalizedPassword, 10)
-  const existing = await User.findByEmail(normalizedEmail)
+  const existingResult = await supabaseDataService.selectFrom('users', { filters: { email: normalizedEmail } })
+  const existing = existingResult.data?.[0]
 
   if (existing) {
-    await User.updatePasswordAndRole(existing.id, passwordHash, role)
+    await supabaseDataService.updateById('users', existing.id, {
+      password: passwordHash,
+      role,
+    })
     return { created: false, updated: true, email: normalizedEmail, role }
   }
 
-  const created = await User.create({
+  const createdResult = await supabaseDataService.insertInto('users', {
     email: normalizedEmail,
     password: passwordHash,
     role,
   })
 
-  return { created: true, updated: false, email: normalizedEmail, role, user: created }
+  return {
+    created: true,
+    updated: false,
+    email: normalizedEmail,
+    role,
+    user: createdResult.data,
+  }
 }

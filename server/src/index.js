@@ -5,6 +5,7 @@ import { env } from './config/env.js'
 import { validateProductionBoot } from './config/validateProduction.js'
 import { connectDatabase, getDialect } from '../db/connection.js'
 import { bootstrapAdmin } from './bootstrapAdmin.js'
+import { getSupabaseStatus } from './lib/supabaseClient.js'
 
 async function ensureAdminAccess() {
   const defaultEmail = 'admin@prinstineacademy.org'
@@ -47,8 +48,12 @@ const corsOrigins =
     : Array.isArray(env.corsOrigin)
       ? env.corsOrigin
       : [env.corsOrigin]
+const supabaseStatus = getSupabaseStatus()
 console.log(
   `[boot] env=${env.nodeEnv} db=${getDialect()} cors=${corsOrigins.join(', ')}`,
+)
+console.log(
+  `[boot] supabase=${supabaseStatus.configured ? 'configured' : 'not-configured'} database=${supabaseStatus.databaseConfigured ? 'configured' : 'not-configured'}`,
 )
 app.listen(env.port, '0.0.0.0', () => {
   console.log(`Server listening on http://0.0.0.0:${env.port}`)
