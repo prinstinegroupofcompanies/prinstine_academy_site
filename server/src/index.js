@@ -50,6 +50,6 @@ const corsOrigins =
 console.log(
   `[boot] env=${env.nodeEnv} db=${getDialect()} cors=${corsOrigins.join(', ')}`,
 )
-app.listen(env.port, () => {
-  console.log(`Server listening on http://localhost:${env.port}`)
+app.listen(env.port, '0.0.0.0', () => {
+  console.log(`Server listening on http://0.0.0.0:${env.port}`)
 })

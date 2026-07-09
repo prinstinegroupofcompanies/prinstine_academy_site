@@ -6,6 +6,10 @@
     "dev": "cd client && npm run dev",
     "predev:server": "node scripts/check-primary-developer.mjs",
     "dev:server": "cd server && npm run dev",
+    "build": "cd client && npm run build",
     "start": "cd server && npm start"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.2"
   }
 }

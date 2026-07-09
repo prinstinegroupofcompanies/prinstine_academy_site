@@ -52,3 +52,29 @@ VITE_PRINSTINE_PRIMARY_DEV_KEY=your-private-key-at-least-16-chars
 Create `server/.env` with the same `PRINSTINE_PRIMARY_DEV_KEY` (or `SITE_LIVE=true`).
 
 Without authorization, `npm run dev` will **refuse to start** and print the Primary Developer contact details.
+
+## Deployment on Vercel and Render
+
+### Frontend on Vercel
+
+- Connect this repository to Vercel.
+- Set the project root to the repository root.
+- Build command: `npm run build`
+- Output directory: `client/dist`
+- Add frontend environment variables as needed, for example:
+  - `VITE_SITE_LIVE=true`
+  - `VITE_API_URL=https://your-render-service.onrender.com`
+
+### Backend on Render
+
+- Create a Render Web Service using the `server` folder as the root directory.
+- Build command: `npm ci`
+- Start command: `npm start`
+- Add production environment variables:
+  - `NODE_ENV=production`
+  - `JWT_SECRET=<32+ character secret>`
+  - `CORS_ORIGIN=https://your-vercel-app.vercel.app`
+  - `ADMIN_EMAIL=your-admin@example.com`
+  - `ADMIN_PASSWORD=super-secure-password`
+
+The frontend uses same-origin `/api` calls in production, and Vercel rewrites them to the Render backend.
