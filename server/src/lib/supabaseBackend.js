@@ -59,6 +59,34 @@ function createSupabaseClientOrNull() {
   return createSupabaseServerClient()
 }
 
+async function ensureSupabaseAuthUser(email, password, role = 'user') {
+  const client = createSupabaseClientOrNull()
+  if (!client) {
+    return { ok: false, reason: 'supabase-not-configured' }
+  }
+
+  try {
+    const { data, error } = await client.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { role, is_admin: role === 'admin' },
+    })
+
+    if (error) {
+      const message = String(error.message || '').toLowerCase()
+      if (message.includes('already') || message.includes('registered')) {
+        return { ok: false, reason: 'already-registered' }
+      }
+      return { ok: false, reason: error.message }
+    }
+
+    return { ok: true, user: data?.user ?? null }
+  } catch (error) {
+    return { ok: false, reason: String(error?.message || error) }
+  }
+}
+
 async function insertIntoSupabase(table, payload) {
   const client = createSupabaseClientOrNull()
   if (!client) {
@@ -121,8 +149,54 @@ export async function authenticateUser(email, password) {
           },
         }
       }
-    } catch {
-      // Fall back to the local SQL backend below.
+
+      if (error) {
+        const reason = error.message || 'Invalid email or password'
+        const adminEmail = (process.env.ADMIN_EMAIL ?? '').trim().toLowerCase()
+        const adminPassword = String(process.env.ADMIN_PASSWORD ?? '').trim()
+
+        if (
+          normalizedEmail === adminEmail &&
+          adminPassword &&
+          /invalid login credentials|user not found|not found/i.test(reason)
+        ) {
+          const created = await ensureSupabaseAuthUser(normalizedEmail, adminPassword, 'admin')
+          if (created.ok) {
+            const retry = await client.auth.signInWithPassword({
+              email: normalizedEmail,
+              password,
+            })
+            if (!retry.error && retry.data?.user && retry.data?.session) {
+              const role = 'admin'
+              const token = signAccessToken({
+                sub: retry.data.user.id,
+                email: normalizedEmail,
+                role,
+              })
+
+              return {
+                token,
+                user: {
+                  id: retry.data.user.id,
+                  email: normalizedEmail,
+                  role,
+                },
+              }
+            }
+          }
+        }
+
+        if (reason.includes('Invalid login credentials')) {
+          throw new Error('Invalid email or password')
+        }
+        throw new Error(reason)
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Authentication failed'
+      if (message === 'Invalid email or password') {
+        throw error
+      }
+      throw new Error(message)
     }
   }
 

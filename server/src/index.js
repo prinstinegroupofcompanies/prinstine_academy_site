@@ -17,12 +17,12 @@ async function ensureAdminAccess() {
 
   const email = (emailFromEnv || defaultEmail).trim().toLowerCase()
   const password = explicitCredentials
-    ? String(passwordFromEnv)
+    ? String(passwordFromEnv).trim()
     : passwordFromEnv || defaultPassword
 
   if (env.isProduction && !explicitCredentials) {
     console.warn(
-      '[boot] Set ADMIN_EMAIL and ADMIN_PASSWORD on Render so the admin account matches your login credentials.',
+      '[boot] Using the default admin credentials because ADMIN_EMAIL and ADMIN_PASSWORD were not set in the deployment environment.',
     )
   }
 
