@@ -3,9 +3,9 @@ import bcrypt from 'bcryptjs'
 import { connectDatabase, closeDatabase } from './connection.js'
 import { User } from './orm.js'
 
-const emailRaw = process.env.ADMIN_EMAIL || 'admin@prinstineacademy.org'
-const password = process.env.ADMIN_PASSWORD || 'Admin@PrinstineAcademy2026'
-const email = emailRaw.trim().toLowerCase()
+const emailRaw = (process.env.ADMIN_EMAIL || 'admin@prinstineacademy.org').trim()
+const password = (process.env.ADMIN_PASSWORD || 'Admin@PrinstineAcademy2026').trim()
+const email = emailRaw.toLowerCase()
 
 async function main() {
   await connectDatabase()
